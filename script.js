@@ -147,6 +147,7 @@ class App {
     }
 
     // Add new object to workout array
+    this.#workouts.push(workout);
 
     // Render workout on map as marker
     const { lat, lng } = this.#mapEvent.latlng;
