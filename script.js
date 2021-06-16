@@ -17,6 +17,8 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -31,8 +33,11 @@ class Running extends Workout {
 }
 
 class Cycling extends Workout {
+  type = 'cycling';
+
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
+    // this.type = 'cycling';
     this.elevationGain = elevationGain;
     this.calcSpeed();
   }
@@ -58,6 +63,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
     this._getPosition();
@@ -150,26 +156,7 @@ class App {
     this.#workouts.push(workout);
 
     // Render workout on map as marker
-    const { lat, lng } = this.#mapEvent.latlng;
-
-    L.marker([lat, lng], {
-      icon: L.icon({
-        iconUrl: 'marker.png',
-        iconSize: [32, 32],
-      }),
-    })
-      .addTo(this.#map)
-      .bindPopup(
-        L.popup({
-          maxWidth: 250,
-          minWidth: 100,
-          autoClose: false,
-          closeOnClick: false,
-          className: 'running-popup',
-        })
-      )
-      .setPopupContent('Workout')
-      .openPopup();
+    this._renderWorkoutMarker(workout);
 
     // Render workout on list
 
@@ -179,6 +166,22 @@ class App {
       inputCadence.value =
       inputElevation.value =
         '';
+  }
+
+  _renderWorkoutMarker(workout) {
+    L.marker(workout.coords)
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: `${workout.type}-popup`,
+        })
+      )
+      .setPopupContent('workout')
+      .openPopup();
   }
 }
 
