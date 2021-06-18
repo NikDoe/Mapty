@@ -90,6 +90,8 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField);
 
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+    containerWorkouts.addEventListener('click', this._handleDeleteWorkout.bind(this));
   }
 
   _getPosition() {
@@ -226,6 +228,7 @@ class App {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
         <h2 class="workout__title">${workout.description}</h2>
+        <div class="workout__icon-remove" data-id="${workout.id}">🗑️</div>
         <div class="workout__details">
           <span class="workout__icon">${
             workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -279,7 +282,6 @@ class App {
     if (!workoutEl) return;
 
     const workout = this.#workouts.find(w => w.id === workoutEl.dataset.id);
-
     this.#map.setView(workout.coords, this.#mapZoomLevel, {
       animate: true,
       pan: {
@@ -289,6 +291,17 @@ class App {
 
     // using the public interface
     // workout.click();
+  }
+
+  _handleDeleteWorkout (e) {
+    const deleteEl = e.target.closest('.workout__icon-remove');
+    const workoutEl = e.target.closest('.workout');
+    if (!deleteEl) return;
+    if(confirm('Are you sure you want to delete?')){
+      this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.dataset.id)
+      containerWorkouts.removeChild(workoutEl)
+      this._setLocalStorage();
+    }
   }
 
   _setLocalStorage() {
