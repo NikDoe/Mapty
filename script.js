@@ -273,6 +273,8 @@ class App {
   }
 
   _moveToPopup(e) {
+    // BUGFIX: When we click on a workout before the map has loaded, we get an error
+    if (!this.#map) return;
     const workoutEl = e.target.closest('.workout');
 
     if (!workoutEl) return;
