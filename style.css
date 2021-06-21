@@ -47,12 +47,28 @@ a:visited {
   padding: 3rem 5rem 4rem 5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .logo {
   height: 5.2rem;
-  align-self: center;
   margin-bottom: 4rem;
+}
+
+.button__clear {
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  background: none;
+  border: 3px solid var(--color-brand--2);
+  color: var(--color-light--3);
+  font-size: 1.7rem;
+  font-weight: 600;
+  border-radius: 5px;
+}
+
+.button__clear:hover {
+  background: var(--color-brand--2);
+  color: var(--color-dark--1);
 }
 
 .workouts {

@@ -73,6 +73,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const allDelete = document.querySelector('.button__clear');
 
 class App {
   #map;
@@ -92,6 +93,9 @@ class App {
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
     containerWorkouts.addEventListener('click', this._handleDeleteWorkout.bind(this));
+
+    allDelete.addEventListener('click', this._handleAllDelete.bind(this));
+
   }
 
   _getPosition() {
@@ -300,6 +304,15 @@ class App {
     if(confirm('Are you sure you want to delete?')){
       this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.dataset.id)
       containerWorkouts.removeChild(workoutEl)
+      this._setLocalStorage();
+    }
+  }
+
+  _handleAllDelete () {
+    const workoutElAll = document.querySelectorAll('.workout');
+    if(confirm('Are you sure you want to delete all workout?')){
+      workoutElAll.forEach( el => containerWorkouts.removeChild(el) );
+      this.#workouts.length = 0;
       this._setLocalStorage();
     }
   }
