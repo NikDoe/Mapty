@@ -83,7 +83,7 @@ class App {
   constructor() {
     this._getPosition();
 
-    form.addEventListener('submit', this._newWorkout.bind(this));
+    form.addEventListener('submit', this._sumFunc.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
 
@@ -93,6 +93,8 @@ class App {
       'click',
       this._removeAllWorkouts.bind(this)
     );
+
+    containerWorkouts.addEventListener('click', this._editHandle.bind(this));
 
     this._getLocalStorage();
   }
@@ -147,6 +149,19 @@ class App {
   _toggleElevationField() {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
+
+  _sumFunc(e) {
+    const index = document.querySelector('#objIndex').value;
+    e.preventDefault();
+
+    if (index) {
+      this._editWorkout(index);
+      this._getLocalStorage();
+      document.querySelector('#objIndex').value = '';
+    } else {
+      this._newWorkout(this);
+    }
   }
 
   _newWorkout() {
@@ -225,6 +240,7 @@ class App {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
       <div class="workout-remove">delet</div>
+      <div class="workout-edit">edit</div>
         <h2 class="workout__title">${workout.description}</h2>
         <div class="workout__details">
           <span class="workout__icon">${
@@ -352,6 +368,68 @@ class App {
         '.leaflet-popup'
       );
     }
+  }
+
+  _editHandle(e) {
+    const workoutEl = e.target.closest('.workout-edit');
+    if (!workoutEl) return;
+    this._showForm();
+    const workout = this.#workouts.find(
+      w => w.id === workoutEl.parentNode.dataset.id
+    );
+
+    inputType.value = workout.type;
+    inputDistance.value = workout.distance;
+    inputDuration.value = workout.duration;
+    if (workout.type === 'running') {
+      inputElevation.closest('.form__row').classList.add('form__row--hidden');
+      inputCadence.closest('.form__row').classList.remove('form__row--hidden');
+      inputCadence.value = workout.cadence;
+    }
+
+    if (workout.type === 'cycling') {
+      inputElevation
+        .closest('.form__row')
+        .classList.remove('form__row--hidden');
+      inputCadence.closest('.form__row').classList.add('form__row--hidden');
+      inputElevation.value = workout.elevationGain;
+    }
+
+    document.querySelector('#objIndex').value = this.#workouts.indexOf(workout);
+  }
+
+  _editWorkout(index) {
+    const updateItem = this.#workouts[index];
+
+    updateItem.type = inputType.value;
+    const split = updateItem.description.split(' ');
+    split[0] = `${inputType.value[0].toUpperCase()}${inputType.value.slice(1)}`;
+    updateItem.description = split.join(' ');
+    updateItem.distance = +inputDistance.value;
+    updateItem.duration = +inputDuration.value;
+
+    if (inputType.value === 'running') {
+      updateItem.cadence = +inputCadence.value;
+      updateItem.pace = updateItem.duration / updateItem.distance;
+    }
+    if (inputType.value === 'cycling') {
+      updateItem.elevationGain = +inputElevation.value;
+      updateItem.speed = updateItem.distance / (updateItem.duration / 60);
+    }
+
+    this.#workouts.splice(index, 1, updateItem);
+    this._setLocalStorage(this.#workouts);
+    this._hideForm();
+
+    this._editWorkoutHelper(
+      '.leaflet-marker-shadow',
+      '.leaflet-marker-icon',
+      '.leaflet-popup'
+    );
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _editWorkoutHelper(...args) {
