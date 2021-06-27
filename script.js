@@ -33,11 +33,11 @@ class Running extends Workout {
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
-    this.calcPace();
+    this.calcPace;
     this._setDescription();
   }
 
-  calcPace() {
+  get calcPace() {
     // min/km
     this.pace = this.duration / this.distance;
     return this.pace;
@@ -82,13 +82,13 @@ class App {
   constructor() {
     this._getPosition();
 
-    this._getLocalStorage();
-
     form.addEventListener('submit', this._newWorkout.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
 
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+    this._getLocalStorage();
   }
 
   _getPosition() {
@@ -143,13 +143,7 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  _newWorkout(e) {
-    const validInputs = (...inputs) =>
-      inputs.every(inp => Number.isFinite(inp));
-    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
-
-    e.preventDefault();
-
+  _newWorkout() {
     // Get data from form
     const type = inputType.value;
     const distance = +inputDistance.value;
@@ -166,8 +160,8 @@ class App {
         // !Number.isFinite(distance) ||
         // !Number.isFinite(duration) ||
         // !Number.isFinite(cadence)
-        !validInputs(distance, duration, cadence) ||
-        !allPositive(distance, duration, cadence)
+        !this._validInputs(distance, duration, cadence) ||
+        !this._allPositive(distance, duration, cadence)
       )
         return alert('Inputs have to be positive numbers!');
 
@@ -179,8 +173,8 @@ class App {
       const elevation = +inputElevation.value;
 
       if (
-        !validInputs(distance, duration, elevation) ||
-        !allPositive(distance, duration)
+        !this._validInputs(distance, duration, elevation) ||
+        !this._allPositive(distance, duration)
       )
         return alert('Inputs have to be positive numbers!');
 
@@ -200,7 +194,7 @@ class App {
     this._hideForm();
 
     // Set local storage to all workouts
-    this._setLocalStorage();
+    this._setLocalStorage(this.#workouts);
   }
 
   _renderWorkoutMarker(workout) {
@@ -224,6 +218,7 @@ class App {
   _renderWorkout(workout) {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
+      <div class="workout-remove">delet</div>
         <h2 class="workout__title">${workout.description}</h2>
         <div class="workout__details">
           <span class="workout__icon">${
@@ -288,12 +283,14 @@ class App {
       },
     });
 
+    this._removeWorkout(e);
+
     // using the public interface
     // workout.click();
   }
 
-  _setLocalStorage() {
-    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  _setLocalStorage(arr) {
+    localStorage.setItem('workouts', JSON.stringify(arr));
   }
 
   _getLocalStorage() {
@@ -303,10 +300,48 @@ class App {
 
     this.#workouts = data;
 
+    this._editWorkoutHelper('.workout');
+
     this.#workouts.forEach(work => {
       this._renderWorkout(work);
     });
   }
+
+  _removeWorkout(e) {
+    const workoutEl = e.target.closest('.workout-remove');
+    if (!workoutEl) return;
+    const workout = this.#workouts.find(
+      w => w.id === workoutEl.parentNode.dataset.id
+    );
+    if (confirm(`удалить?`)) {
+      containerWorkouts.removeChild(workoutEl.parentNode);
+      const workoutIndex = this.#workouts.indexOf(workout);
+      this.#workouts.splice(workoutIndex, 1);
+      this._setLocalStorage(this.#workouts);
+
+      this._editWorkoutHelper(
+        '.leaflet-marker-shadow',
+        '.leaflet-marker-icon',
+        '.leaflet-popup'
+      );
+
+      this.#workouts.forEach(work => {
+        this._renderWorkoutMarker(work);
+      });
+    }
+
+    this._hideForm();
+  }
+
+  _editWorkoutHelper(...args) {
+    args.forEach(elSelector => {
+      const arr = document.querySelectorAll(elSelector);
+      arr.forEach(el => el.remove());
+    });
+  }
+
+  _validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+  _allPositive = (...inputs) => inputs.every(inp => inp > 0);
 }
 
 const app = new App();
