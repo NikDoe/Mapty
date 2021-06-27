@@ -72,6 +72,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const removeAllWorkouts = document.querySelector('.remove__all');
 
 class App {
   #map;
@@ -87,6 +88,11 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField);
 
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+    removeAllWorkouts.addEventListener(
+      'click',
+      this._removeAllWorkouts.bind(this)
+    );
 
     this._getLocalStorage();
   }
@@ -331,6 +337,21 @@ class App {
     }
 
     this._hideForm();
+  }
+
+  _removeAllWorkouts() {
+    if (this.#workouts.length > 0 && confirm('Удалить все тренировки?')) {
+      this.#workouts.splice(0, this.#workouts.length);
+
+      this._setLocalStorage(this.#workouts);
+
+      this._editWorkoutHelper('.workout');
+      this._editWorkoutHelper(
+        '.leaflet-marker-shadow',
+        '.leaflet-marker-icon',
+        '.leaflet-popup'
+      );
+    }
   }
 
   _editWorkoutHelper(...args) {
