@@ -80,19 +80,22 @@ class App {
   #mapEvent;
   #workouts = [];
   #mapZoomLevel = 13;
+  #idChange = null;
 
   constructor() {
     this._getPosition();
 
     this._getLocalStorage();
 
-    form.addEventListener('submit', this._newWorkout.bind(this));
+    form.addEventListener('submit', this._handleSubmit.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
 
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
     containerWorkouts.addEventListener('click', this._handleDeleteWorkout.bind(this));
+
+    containerWorkouts.addEventListener('click', this._handleOpenChange.bind(this));
 
     allDelete.addEventListener('click', this._handleAllDelete.bind(this));
 
@@ -150,12 +153,22 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  _newWorkout(e) {
+  _handleSubmit(e) {
+    e.preventDefault();
+
+    if( this.#idChange ) {
+      this._handleClickChange();
+      this._getLocalStorage();
+    } else {
+      this._newWorkout();
+    }
+  }
+
+  _newWorkout() {
     const validInputs = (...inputs) =>
       inputs.every(inp => Number.isFinite(inp));
     const allPositive = (...inputs) => inputs.every(inp => inp > 0);
 
-    e.preventDefault();
 
     // Get data from form
     const type = inputType.value;
@@ -207,7 +220,7 @@ class App {
     this._hideForm();
 
     // Set local storage to all workouts
-    this._setLocalStorage();
+    this._setLocalStorage(this.#workouts);
   }
 
   _renderWorkoutMarker(workout) {
@@ -231,8 +244,9 @@ class App {
   _renderWorkout(workout) {
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
+        <div class="workout__icon-remove">🗑️</div>
+        <div class="workout__icon-change">✏️</div>
         <h2 class="workout__title">${workout.description}</h2>
-        <div class="workout__icon-remove" data-id="${workout.id}">🗑️</div>
         <div class="workout__details">
           <span class="workout__icon">${
             workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -299,12 +313,19 @@ class App {
 
   _handleDeleteWorkout (e) {
     const deleteEl = e.target.closest('.workout__icon-remove');
-    const workoutEl = e.target.closest('.workout');
     if (!deleteEl) return;
     if(confirm('Are you sure you want to delete?')){
-      this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.dataset.id)
-      containerWorkouts.removeChild(workoutEl)
-      this._setLocalStorage();
+      this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.parentNode.dataset.id)
+      containerWorkouts.removeChild(deleteEl.parentNode)
+      this._setLocalStorage(this.#workouts);
+      this._editWorkoutHelper(
+        '.leaflet-marker-icon',
+        '.leaflet-popup',
+        '.leaflet-marker-shadow'
+      );
+      this.#workouts.forEach(work => {
+        this._renderWorkoutMarker(work);
+      });
     }
   }
 
@@ -313,12 +334,72 @@ class App {
     if(confirm('Are you sure you want to delete all workout?')){
       workoutElAll.forEach( el => containerWorkouts.removeChild(el) );
       this.#workouts.length = 0;
-      this._setLocalStorage();
+      this._setLocalStorage(this.#workouts);
+      this._editWorkoutHelper(
+        '.leaflet-marker-icon',
+        '.leaflet-popup',
+        '.leaflet-marker-shadow'
+      );
     }
   }
 
-  _setLocalStorage() {
-    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  _handleOpenChange (e) {
+    const changeEl = e.target.closest('.workout__icon-change');
+    if (!changeEl) return
+    this._showForm();
+    const workout = this.#workouts.find(w => w.id === changeEl.parentNode.dataset.id);
+    inputDistance.value = workout.distance
+    inputType.value = workout.type
+    inputDuration.value = workout.duration
+    if (workout.type === 'running') {
+      inputElevation.closest('.form__row').classList.add('form__row--hidden');
+      inputCadence.closest('.form__row').classList.remove('form__row--hidden');
+      inputCadence.value = workout.cadence;
+    }
+  
+    if (workout.type === 'cycling') {
+      inputElevation.closest('.form__row').classList.remove('form__row--hidden');
+      inputCadence.closest('.form__row').classList.add('form__row--hidden');
+      inputElevation.value = workout.elevationGain;
+    }
+    this.#idChange = workout.id
+  }
+
+  _handleClickChange () {
+    const workout = this.#workouts.find(w => w.id === this.#idChange);
+    const newDescription = workout.description.split(' ')
+    newDescription[0] = `${inputType.value[0].toUpperCase()}${inputType.value.slice(1)}`
+    workout.description = newDescription.join(' ');
+    workout.type = inputType.value;
+    workout.distance = +inputDistance.value
+    workout.duration = +inputDuration.value
+    if ( workout.type === 'cycling' ) {
+      workout.elevationGain = +inputElevation.value;
+      workout.speed = workout.distance / (workout.duration / 60);
+    }else{
+      workout.cadence = +inputCadence.value;
+      workout.pace = workout.duration / workout.distance;
+    }
+    let edit = this.#workouts.map( el => {
+      if (el.id === this.#idChange) {
+       el = workout
+      }
+      return el
+    })
+    this._setLocalStorage(edit);
+    this._hideForm();
+  }
+
+  _editWorkoutHelper(...args) {
+    args.forEach(elSelector => {
+      const arr = document.querySelectorAll(elSelector);
+      arr.forEach(el => el.remove());
+    });
+  }
+
+
+  _setLocalStorage( arr ) {
+    localStorage.setItem('workouts', JSON.stringify(arr));
   }
 
   _getLocalStorage() {
@@ -327,6 +408,8 @@ class App {
     if (!data) return;
 
     this.#workouts = data;
+
+    this._editWorkoutHelper('.workout');
 
     this.#workouts.forEach(work => {
       this._renderWorkout(work);

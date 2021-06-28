@@ -88,9 +88,8 @@ a:visited {
   padding: 1.5rem 2.25rem;
   margin-bottom: 1.75rem;
   cursor: pointer;
-
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 0.75rem 1.5rem;
 }
 .workout--running {
@@ -103,6 +102,7 @@ a:visited {
 .workout__title {
   font-size: 1.7rem;
   font-weight: 600;
+  grid-column: 1 / -1;
 }
 
 .workout__details {
@@ -116,14 +116,18 @@ a:visited {
   height: 0.28rem;
 }
 
+.workout__tools {
+  display: flex;
+  align-items: center;
+}
+
 .workout__value {
   font-size: 1.5rem;
   margin-right: 0.5rem;
 }
 
 .workout__icon-remove {
-  display: flex;
-  align-items: center;
+  margin-right: 1rem;
 }
 
 .workout__unit {
@@ -138,13 +142,12 @@ a:visited {
   border-radius: 5px;
   padding: 1.5rem 2.75rem;
   margin-bottom: 1.75rem;
-
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem 2.5rem;
 
   /* Match height and activity boxes */
-  height: 9.25rem;
+  /* height: 9.25rem; */
   transition: all 0.5s, transform 1ms;
 }
 
