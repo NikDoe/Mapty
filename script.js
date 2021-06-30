@@ -74,6 +74,9 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const allDelete = document.querySelector('.button__clear');
+const modalCloseBg = document.querySelector('.bg-modal')
+const modalCloseBtn = document.querySelector('.btn__close')
+const modalOkBtn = document.querySelector('.btn__ok')
 
 class App {
   #map;
@@ -98,6 +101,10 @@ class App {
     containerWorkouts.addEventListener('click', this._handleOpenChange.bind(this));
 
     allDelete.addEventListener('click', this._handleAllDelete.bind(this));
+
+    modalCloseBg.addEventListener('click', this._closeModal.bind(this));
+    
+    modalCloseBtn.addEventListener('click', this._closeModal.bind(this));
 
   }
 
@@ -155,10 +162,9 @@ class App {
 
   _handleSubmit(e) {
     e.preventDefault();
-
     if( this.#idChange ) {
-      this._handleClickChange();
-      this._getLocalStorage();
+      this._openModal('Are you sure you want to change workout?')
+      modalOkBtn.addEventListener("click", this._handleClickChange.bind(this))
     } else {
       this._newWorkout();
     }
@@ -314,7 +320,8 @@ class App {
   _handleDeleteWorkout (e) {
     const deleteEl = e.target.closest('.workout__icon-remove');
     if (!deleteEl) return;
-    if(confirm('Are you sure you want to delete?')){
+    this._openModal('Are you sure you want to delete?')
+    modalOkBtn.addEventListener('click', () => {
       this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.parentNode.dataset.id)
       containerWorkouts.removeChild(deleteEl.parentNode)
       this._setLocalStorage(this.#workouts);
@@ -326,21 +333,24 @@ class App {
       this.#workouts.forEach(work => {
         this._renderWorkoutMarker(work);
       });
-    }
+      modalCloseBg.style.display = "none";
+    })
   }
 
   _handleAllDelete () {
     const workoutElAll = document.querySelectorAll('.workout');
-    if(confirm('Are you sure you want to delete all workout?')){
-      workoutElAll.forEach( el => containerWorkouts.removeChild(el) );
-      this.#workouts.length = 0;
-      this._setLocalStorage(this.#workouts);
-      this._editWorkoutHelper(
-        '.leaflet-marker-icon',
-        '.leaflet-popup',
-        '.leaflet-marker-shadow'
-      );
-    }
+    this._openModal('Are you sure you want to delete all workout?')
+    modalOkBtn.addEventListener('click', () => { 
+        workoutElAll.forEach( el => el.remove() );
+        this.#workouts.length = 0;
+        this._setLocalStorage(this.#workouts);
+        this._editWorkoutHelper(
+          '.leaflet-marker-icon',
+          '.leaflet-popup',
+          '.leaflet-marker-shadow'
+        );
+        modalCloseBg.style.display = "none";
+    })
   }
 
   _handleOpenChange (e) {
@@ -387,7 +397,10 @@ class App {
       return el
     })
     this._setLocalStorage(edit);
+    modalCloseBg.style.display = "none";
+    this._getLocalStorage();
     this._hideForm();
+    this.#idChange = ''
   }
 
   _editWorkoutHelper(...args) {
@@ -415,6 +428,19 @@ class App {
       this._renderWorkout(work);
     });
   }
+
+  _closeModal(e) {
+    if (e.target === modalCloseBg || e.target === modalCloseBtn) {
+      modalCloseBg.style.display = "none";
+    }
+  }
+
+  _openModal(text) {
+    let textModal = document.querySelector(".modal-text")
+    modalCloseBg.style.display = "flex";
+    textModal.textContent = text
+  }
+
 }
 
 const app = new App();

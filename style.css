@@ -27,7 +27,7 @@ body {
   line-height: 1.6;
   height: 100vh;
   overscroll-behavior-y: none;
-
+  position: relative;
   background-color: #fff;
   padding: 2.5rem;
 
@@ -126,8 +126,9 @@ a:visited {
   margin-right: 0.5rem;
 }
 
-.workout__icon-remove {
-  margin-right: 1rem;
+.workout__icon-remove, .workout__icon-change {
+  align-items: baseline;
+  display: flex;
 }
 
 .workout__unit {
@@ -240,4 +241,62 @@ a:visited {
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+.bg-modal {
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+
+.modal {
+  background-color: var(--color-dark--1);
+  width: 500px;
+  padding: 20px;
+  border-radius: 5px;
+  position: relative;
+}
+
+.modal-text {
+  color: var(--color-light--3);
+  font-size: 3rem;
+  text-align: center;
+  display: block;
+  letter-spacing: 1;
+}
+
+.modal-button {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2rem;
+}
+
+.modal-button button {
+  margin-bottom: 0;
+}
+
+.button {
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  background: none;
+  border: 3px solid var(--color-brand--2);
+  color: var(--color-light--3);
+  font-size: 1.7rem;
+  font-weight: 600;
+  border-radius: 5px;
+  width: 113px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-brand--2);
+  color: var(--color-dark--1);
 }
