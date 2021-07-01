@@ -163,8 +163,9 @@ class App {
   _handleSubmit(e) {
     e.preventDefault();
     if( this.#idChange ) {
-      this._openModal('Are you sure you want to change workout?')
-      modalOkBtn.addEventListener("click", this._handleClickChange.bind(this))
+      this._handleClickChange();
+      this._getLocalStorage();
+      this.#idChange = ''
     } else {
       this._newWorkout();
     }
@@ -334,7 +335,8 @@ class App {
         this._renderWorkoutMarker(work);
       });
       modalCloseBg.style.display = "none";
-    })
+      console.log('удаление одного')
+    }, { once: true })
   }
 
   _handleAllDelete () {
@@ -350,7 +352,8 @@ class App {
           '.leaflet-marker-shadow'
         );
         modalCloseBg.style.display = "none";
-    })
+        console.log('удаление всех')
+    }, { once: true })
   }
 
   _handleOpenChange (e) {
@@ -397,10 +400,7 @@ class App {
       return el
     })
     this._setLocalStorage(edit);
-    modalCloseBg.style.display = "none";
-    this._getLocalStorage();
     this._hideForm();
-    this.#idChange = ''
   }
 
   _editWorkoutHelper(...args) {
