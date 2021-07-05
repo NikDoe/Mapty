@@ -77,6 +77,8 @@ const allDelete = document.querySelector('.button__clear');
 const modalCloseBg = document.querySelector('.bg-modal')
 const modalCloseBtn = document.querySelector('.btn__close')
 const modalOkBtn = document.querySelector('.btn__ok')
+const inputTypeFilter = document.querySelector('.filter__input--type');
+const inputTypeSort = document.querySelector('.sort__input--type');
 
 class App {
   #map;
@@ -105,6 +107,10 @@ class App {
     modalCloseBg.addEventListener('click', this._closeModal.bind(this));
     
     modalCloseBtn.addEventListener('click', this._closeModal.bind(this));
+
+    inputTypeFilter.addEventListener('change', this._filterWorkout.bind(this))
+
+    inputTypeSort.addEventListener('change', this._sortWorkout.bind(this))
 
   }
 
@@ -326,16 +332,16 @@ class App {
       this.#workouts = this.#workouts.filter(w => w.id !== deleteEl.parentNode.dataset.id)
       containerWorkouts.removeChild(deleteEl.parentNode)
       this._setLocalStorage(this.#workouts);
-      this._editWorkoutHelper(
-        '.leaflet-marker-icon',
-        '.leaflet-popup',
-        '.leaflet-marker-shadow'
-      );
-      this.#workouts.forEach(work => {
-        this._renderWorkoutMarker(work);
-      });
+      // this._editWorkoutHelper(
+      //   '.leaflet-marker-icon',
+      //   '.leaflet-popup',
+      //   '.leaflet-marker-shadow'
+      // );
+      // this.#workouts.forEach(work => {
+      //   this._renderWorkoutMarker(work);
+      // });
+      this._renderFunctionMarker(this.#workouts)
       modalCloseBg.style.display = "none";
-      console.log('удаление одного')
     }, { once: true })
   }
 
@@ -352,7 +358,6 @@ class App {
           '.leaflet-marker-shadow'
         );
         modalCloseBg.style.display = "none";
-        console.log('удаление всех')
     }, { once: true })
   }
 
@@ -422,10 +427,29 @@ class App {
 
     this.#workouts = data;
 
-    this._editWorkoutHelper('.workout');
+    // this._editWorkoutHelper('.workout');
 
-    this.#workouts.forEach(work => {
+    // this.#workouts.forEach(work => {
+    //   this._renderWorkout(work);
+    // });
+    this._renderFunctionWorkaut(this.#workouts);
+  }
+
+  _renderFunctionWorkaut (arr) {
+    this._editWorkoutHelper('.workout');
+    arr.forEach(work => {
       this._renderWorkout(work);
+    });
+  }
+
+  _renderFunctionMarker (arr) {
+    this._editWorkoutHelper(
+      '.leaflet-marker-icon',
+      '.leaflet-popup',
+      '.leaflet-marker-shadow'
+    );
+    arr.forEach(work => {
+      this._renderWorkoutMarker(work);
     });
   }
 
@@ -441,6 +465,62 @@ class App {
     textModal.textContent = text
   }
 
+  _filterWorkout () {
+    const filter = inputTypeFilter.value;
+    const data = JSON.parse(localStorage.getItem("workouts"))
+    const textFilter = document.querySelector(".filter__text")
+    switch (filter) {
+      case 'cycling':
+        const filterCycling = data.filter(item => item.type !== 'running');
+        textFilter.textContent = filter
+        this._renderFunctionMarker(filterCycling)
+        this._renderFunctionWorkaut(filterCycling)
+        break;
+      case 'running':
+        const filterRunning = data.filter(item => item.type !== 'cycling');
+        textFilter.textContent = filter
+        this._renderFunctionMarker(filterRunning)
+        this._renderFunctionWorkaut(filterRunning)
+        break;
+      default:
+        this._renderFunctionMarker(data)
+        this._renderFunctionWorkaut(data)
+        textFilter.textContent = 'All'
+    }
+  }
+
+  _sortWorkout () {
+    const sort = inputTypeSort.value;
+    const data = JSON.parse(localStorage.getItem("workouts"))
+    const textSort = document.querySelector(".sort__text")
+    switch (sort) {
+      case 'distance':
+        const sortDistance = data.sort(function(a, b){
+          return b.distance - a.distance
+        })
+        textSort.textContent = sort
+        this._renderFunctionWorkaut(sortDistance)
+        break;
+      case 'duration':
+        const sortDuration = data.sort(function(a, b){
+          return b.duration - a.duration
+        })
+        textSort.textContent = sort
+        this._renderFunctionWorkaut(sortDuration)
+        break;
+      case 'date':
+        const sortDate = data.sort(function(a, b){
+          let dateA = new Date(a.date), dateB = new Date(b.date)
+          return dateB - dateA 
+        })
+        textSort.textContent = sort
+        this._renderFunctionWorkaut(sortDate)
+        break;
+      default:
+        textSort.textContent = sort
+        this._renderFunctionWorkaut(data)
+    }
+  }
 }
 
 const app = new App();
