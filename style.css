@@ -175,7 +175,7 @@ a:visited {
   font-weight: 600;
 }
 
-.form__input {
+.form__input, .filter__input, .sort__input {
   width: 100%;
   padding: 0.3rem 1.1rem;
   font-family: inherit;
@@ -186,7 +186,7 @@ a:visited {
   transition: all 0.2s;
 }
 
-.form__input:focus {
+.form__input:focus, .filter__input:focus, .sort__input:focus {
   outline: none;
   background-color: #fff;
 }
@@ -299,4 +299,27 @@ a:visited {
 .button:hover {
   background: var(--color-brand--2);
   color: var(--color-dark--1);
+}
+
+.workouts__filter, .workouts__sort {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.workouts__filter span, .workouts__sort span {
+  display: block;
+  flex: 3;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.workouts__filter .filter__input, .workouts__sort .sort__input {
+  flex: 1 1
+}
+
+.workouts__filter span i, .workouts__sort span i {
+  font-weight: normal;
 }
