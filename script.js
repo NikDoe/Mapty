@@ -116,9 +116,11 @@ class App {
 
   _getPosition() {
     if (navigator.geolocation)
-      navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () =>
-        alert('Could not get your position')
-      );
+      navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () =>{
+        modalOkBtn.style.display = 'none'
+        modalCloseBtn.textContent = 'Ok'
+        return this._openModal('Could not get your position');
+      });
   }
 
   _loadMap(position) {
@@ -201,8 +203,12 @@ class App {
         // !Number.isFinite(cadence)
         !validInputs(distance, duration, cadence) ||
         !allPositive(distance, duration, cadence)
-      )
-        return alert('Inputs have to be positive numbers!');
+      ){
+        modalOkBtn.style.display = 'none'
+        modalCloseBtn.textContent = 'Ok'
+        return this._openModal('Inputs have to be positive numbers!');
+      }
+
 
       workout = new Running([lat, lng], distance, duration, cadence);
     }
@@ -214,8 +220,11 @@ class App {
       if (
         !validInputs(distance, duration, elevation) ||
         !allPositive(distance, duration)
-      )
-        return alert('Inputs have to be positive numbers!');
+      ){
+        modalOkBtn.style.display = 'none'
+        modalCloseBtn.textContent = 'Ok'
+        return this._openModal('Inputs have to be positive numbers!');
+      }
 
       workout = new Cycling([lat, lng], distance, duration, elevation);
     }
