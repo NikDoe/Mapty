@@ -347,6 +347,7 @@ class App {
 
   _handleAllDelete () {
     const workoutElAll = document.querySelectorAll('.workout');
+    if (!this.#workouts.length !== 0) return;
     this._openModal('Are you sure you want to delete all workout?')
     modalOkBtn.addEventListener('click', () => { 
         workoutElAll.forEach( el => el.remove() );
