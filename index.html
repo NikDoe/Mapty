@@ -26,6 +26,23 @@
   <div class="sidebar">
     <img src="logo.png" alt="Logo" class="logo" />
     <button class="button button__clear">Clear all</button>
+    <div class="workouts__filter">
+      <span>Фильтровать по: <i class="filter__text">all</i></span>
+      <select class="filter__input filter__input--type">
+        <option value="all">All</option>
+        <option value="running">Running</option>
+        <option value="cycling">Cycling</option>
+      </select>
+    </div>
+    <div class="workouts__sort">
+      <span>Сортировать по: <i class="sort__text">default</i></span>
+      <select class="sort__input sort__input--type">
+        <option>Default</option>
+        <option value="distance">Distance</option>
+        <option value="duration">Duration</option>
+        <option value="date">Date</option>
+      </select>
+    </div>
     <ul class="workouts">
       <form class="form hidden">
         <div class="form__row">
