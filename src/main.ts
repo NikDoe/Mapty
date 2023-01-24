@@ -1,5 +1,8 @@
-import './style.css'
+import "./css/style.css";
+import MyMap from "./models/Map";
 
-const hi: string = 'Hi there👌'
-console.log(hi)
+const initApp = (): void => {
+	MyMap.instance;
+};
 
+document.addEventListener("DOMContentLoaded", initApp);
