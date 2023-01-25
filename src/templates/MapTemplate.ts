@@ -12,6 +12,7 @@ export default class MapTemplate implements DOMMap {
 		const div = document.createElement("div") as HTMLDivElement;
 		div.id = "map";
 		this.body.append(div);
-		new MyMap(div);
+		const map = new MyMap(div);
+		map.loadMap();
 	}
 }
