@@ -1,8 +1,9 @@
 import "./css/style.css";
-import MyMap from "./models/Map";
+import MapTemplate from "./templates/MapTemplate";
 
 const initApp = (): void => {
-	MyMap.instance;
+	const map = new MapTemplate();
+	map.render();
 };
 
 document.addEventListener("DOMContentLoaded", initApp);
